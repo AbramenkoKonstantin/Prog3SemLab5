@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZedGraph;
@@ -32,7 +28,7 @@ namespace ProgLab1
                     }
                 }
 
-                GraphPane pane = zedGraph.GraphPane;
+                GraphPane pane = graphTrapezium.GraphPane;
                 pane.CurveList.Clear();
                 double.TryParse(textBoxA.Text, out double aBord);
                 double.TryParse(textBoxB.Text, out double bBord);
@@ -52,6 +48,7 @@ namespace ProgLab1
                     int splits = TrapeziumMethod.OptimalSplits(aBord, bBord, esp, func);
                     double square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
                     trapeziumAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    TrapeziumSplits(aBord, bBord, splits, func);
                 }
 
                 if (checkBoxRectangle.Checked)
@@ -59,6 +56,7 @@ namespace ProgLab1
                     int splits = RectangleMethod.OptimalSplits(aBord, bBord, esp, func);
                     double square = RectangleMethod.Calculation(aBord, bBord, splits, func);
                     rectangleAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    RectangleSplits(aBord, bBord, splits, func);
                 }
 
                 if (checkBoxSimpson.Checked)
@@ -66,6 +64,7 @@ namespace ProgLab1
                     int splits = SimpsonMethod.OptimalSplits(aBord, bBord, esp, func);
                     double square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
                     simpsonAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    SimpsonSplits(aBord, bBord, splits, func);
                 }
             }
 
@@ -102,36 +101,144 @@ namespace ProgLab1
             return round;
         }
 
-        private void LineDraw(double aBord, double bBord, double h, Expression func)
+        public void TrapeziumSplits(double aBord, double bBord, int splits, Expression func)
+        {
+            GraphPane pane = graphTrapezium.GraphPane;
+
+            if (pane.CurveList.Count > 1)
+            {
+                pane.CurveList.RemoveAt(1);
+            }
+
+            double splitStep = (bBord - aBord) / splits;
+            double x = aBord;
+
+            PointPairList list = new PointPairList();
+
+            for (int counter = 1; counter <= splits; ++counter)
+            {
+                x += splitStep;
+                list.Add(x, FuncValue(x, func));
+            }
+
+            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
+            myCurve.Line.IsVisible = false;
+            myCurve.Symbol.Fill.Color = Color.Red;
+            myCurve.Symbol.Fill.Type = FillType.Solid;
+            myCurve.Symbol.Size = 5;
+
+            graphTrapezium.AxisChange();
+            graphTrapezium.Invalidate();
+        }
+
+        public void RectangleSplits(double aBord, double bBord, int splits, Expression func)
+        {
+            GraphPane pane = graphRectangle.GraphPane;
+
+            if (pane.CurveList.Count > 1)
+            {
+                pane.CurveList.RemoveAt(1);
+            }
+
+            double splitStep = (bBord - aBord) / splits;
+            double x = aBord;
+
+            PointPairList list = new PointPairList();
+
+            for (int counter = 1; counter <= splits; ++counter)
+            {
+                x += splitStep;
+                list.Add(x, FuncValue(x, func));
+            }
+
+            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
+            myCurve.Line.IsVisible = false;
+            myCurve.Symbol.Fill.Color = Color.Red;
+            myCurve.Symbol.Fill.Type = FillType.Solid;
+            myCurve.Symbol.Size = 5;
+
+            graphRectangle.AxisChange();
+            graphRectangle.Invalidate();
+        }
+
+        public void SimpsonSplits(double aBord, double bBord, int splits, Expression func)
+        {
+            GraphPane pane = graphSimpson.GraphPane;
+
+            if (pane.CurveList.Count > 1)
+            {
+                pane.CurveList.RemoveAt(1);
+            }
+
+            double splitStep = (bBord - aBord) / splits;
+            double x = aBord;
+
+            PointPairList list = new PointPairList();
+
+            for (int counter = 1; counter <= splits; ++counter)
+            {
+                x += splitStep;
+                list.Add(x, FuncValue(x, func));
+            }
+
+            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
+            myCurve.Line.IsVisible = false;
+            myCurve.Symbol.Fill.Color = Color.Red;
+            myCurve.Symbol.Fill.Type = FillType.Solid;
+            myCurve.Symbol.Size = 5;
+
+            graphSimpson.AxisChange();
+            graphSimpson.Invalidate();
+        }
+
+
+        private void LineDraw(double aBord, double bBord, double esp, Expression func)
         {
 
-            GraphPane pane = zedGraph.GraphPane;
-            pane.CurveList.Clear();
+            GraphPane trapeziumMethod = graphTrapezium.GraphPane;
+            GraphPane rectangleMethod = graphRectangle.GraphPane;
+            GraphPane simpsonMethod = graphSimpson.GraphPane;
 
-            double hValue = h;
+            trapeziumMethod.CurveList.Clear();
+            rectangleMethod.CurveList.Clear();
+            simpsonMethod.CurveList.Clear();
+
+            trapeziumMethod.Title.Text = "Trapezium Method";
+            rectangleMethod.Title.Text = "Rectangle Method";
+            simpsonMethod.Title.Text = "Simpson Method";
+
+            double espValue = esp;
             int counter = 0;
-            while (hValue < 1)
+            while (espValue < 1)
             {
-                hValue *= 10;
+                espValue *= 10;
                 counter += 1;
             }
 
-            if ((bBord - aBord) / 50000 > h)
+            if ((bBord - aBord) / 50000 > esp)
             {
-                h = (bBord - aBord) / 50000;
+                esp = (bBord - aBord) / 50000;
             }
 
             PointPairList list = new PointPairList();
 
-            for (double x = aBord; x <= bBord; x += h)
+            for (double x = aBord; x <= bBord; x += esp)
             {
                 double funcValue = Math.Round(FuncValue(x, func), counter);
                 list.Add(x, funcValue);
             }
 
-            pane.AddCurve("Sinc", list, Color.Blue, SymbolType.None);
-            zedGraph.AxisChange();
-            zedGraph.Invalidate();
+            trapeziumMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+            graphTrapezium.AxisChange();
+            graphTrapezium.Invalidate();
+
+            rectangleMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+            graphRectangle.AxisChange();
+            graphRectangle.Invalidate();
+
+            simpsonMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+            graphSimpson.AxisChange();
+            graphSimpson.Invalidate();
         }
         static public double FuncValue(double point, Expression func)
         {
@@ -178,6 +285,7 @@ namespace ProgLab1
                     splits /= 2;
                     square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
                     trapeziumAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    TrapeziumSplits(aBord, bBord, splits, func);
                 }
             }
 
@@ -190,6 +298,7 @@ namespace ProgLab1
                     splits /= 2;
                     square = RectangleMethod.Calculation(aBord, bBord, splits, func);
                     rectangleAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    RectangleSplits(aBord, bBord, splits, func);
                 }
             }
 
@@ -202,6 +311,7 @@ namespace ProgLab1
                     splits /= 2;
                     square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
                     simpsonAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    SimpsonSplits(aBord, bBord, splits, func);
                 }
             }
         }
@@ -216,37 +326,43 @@ namespace ProgLab1
 
             if (trapeziumAnswerBox.Text != "")
             {
-                int splitsTrapezium = int.Parse(trapeziumAnswerBox.Text.Substring(trapeziumAnswerBox.Text.IndexOf("; ") + 1));
-                double squareTrapezium;
-                if (splitsTrapezium * 2 < 100000)
+                int optimalSplits = TrapeziumMethod.OptimalSplits(aBord, bBord, esp, func);
+                int splits = int.Parse(trapeziumAnswerBox.Text.Substring(trapeziumAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits * 2 <= optimalSplits)
                 {
-                    splitsTrapezium *= 2;
-                    squareTrapezium = TrapeziumMethod.Calculation(aBord, bBord, splitsTrapezium, func);
-                    trapeziumAnswerBox.Text = Math.Round(squareTrapezium, round).ToString() + "; " + splitsTrapezium.ToString();
+                    splits *= 2;
+                    square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
+                    trapeziumAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    TrapeziumSplits(aBord, bBord, splits, func);
                 }
             }
 
             if (rectangleAnswerBox.Text != "")
             {
-                int splitsRectangle = int.Parse(rectangleAnswerBox.Text.Substring(rectangleAnswerBox.Text.IndexOf("; ") + 1));
-                double squareRectangle;
-                if (splitsRectangle * 2 < 100000)
+                int optimalSplits = RectangleMethod.OptimalSplits(aBord, bBord, esp, func);
+                int splits = int.Parse(rectangleAnswerBox.Text.Substring(rectangleAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits * 2 <= optimalSplits)
                 {
-                    splitsRectangle *= 2;
-                    squareRectangle = RectangleMethod.Calculation(aBord, bBord, splitsRectangle, func);
-                    rectangleAnswerBox.Text = Math.Round(squareRectangle, round).ToString() + "; " + splitsRectangle.ToString();
+                    splits *= 2;
+                    square = RectangleMethod.Calculation(aBord, bBord, splits, func);
+                    rectangleAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    RectangleSplits(aBord, bBord, splits, func);
                 }
             }
 
             if (simpsonAnswerBox.Text != "")
             {
-                int splitsSimpson = int.Parse(simpsonAnswerBox.Text.Substring(simpsonAnswerBox.Text.IndexOf("; ") + 1));
-                double squareSimpson;
-                if (splitsSimpson * 2 < 100000)
+                int optimalSplits = SimpsonMethod.OptimalSplits(aBord, bBord, esp, func);
+                int splits = int.Parse(simpsonAnswerBox.Text.Substring(simpsonAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits * 2 <= optimalSplits)
                 {
-                    splitsSimpson *= 2;
-                    squareSimpson = SimpsonMethod.Calculation(aBord, bBord, splitsSimpson, func);
-                    simpsonAnswerBox.Text = Math.Round(squareSimpson, round).ToString() + "; " + splitsSimpson.ToString();
+                    splits *= 2;
+                    square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
+                    simpsonAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                    SimpsonSplits(aBord, bBord, splits, func);
                 }
             }
         }

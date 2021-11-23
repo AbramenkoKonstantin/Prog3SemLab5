@@ -1,5 +1,6 @@
 ﻿using System;
 using MathNet.Symbolics;
+using ZedGraph;
 
 namespace ProgLab1
 {
