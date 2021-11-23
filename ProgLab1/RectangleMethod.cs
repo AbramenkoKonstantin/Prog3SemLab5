@@ -1,10 +1,13 @@
 ﻿using System;
 using MathNet.Symbolics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ProgLab1
 {
-    
-    static public class TrapeziumMethod
+    class RectangleMethod
     {
         public static int OptimalSplits(double aBord, double bBord, double esp, Expression func)
         {
@@ -20,20 +23,19 @@ namespace ProgLab1
                 double smallerSum = 0;
                 double largerSum = 0;
 
-                for (int counter = 1; counter < splits; ++counter)
+                for (int counter = 0; counter < splits; ++counter)
                 {
+                    smallerSum += Form1.FuncValue((2 * x1 + splitStep) / 2, func);
                     x1 += splitStep;
-                    smallerSum += Form1.FuncValue(x1, func);
                 }
 
-                for (int counter = 1; counter < splits * 2; ++counter)
+                for (int counter = 0; counter < splits * 2; ++counter)
                 {
+                    largerSum += Form1.FuncValue((2 * x2 + splitStep / 2) / 2, func);
                     x2 += splitStep / 2;
-                    largerSum += Form1.FuncValue(x2, func);
                 }
-
-                smallerSquare = splitStep * ((Form1.FuncValue(aBord, func) + Form1.FuncValue(bBord, func)) / 2 + smallerSum);
-                largerSquare = (splitStep / 2) * ((Form1.FuncValue(aBord, func) + Form1.FuncValue(bBord, func)) / 2 + largerSum);
+                smallerSquare = splitStep * smallerSum;
+                largerSquare = (splitStep / 2) * largerSum;
                 splits *= 2;
             }
             return splits;
@@ -46,15 +48,14 @@ namespace ProgLab1
             double splitStep = (bBord - aBord) / splits;
             double x = aBord;
 
-            for (int counter = 1; counter < splits; ++counter)
+            for (int counter = 0; counter < splits; ++counter)
             {
+                sum += Form1.FuncValue((2 * x + splitStep) / 2, func);
                 x += splitStep;
-                sum += Form1.FuncValue(x, func);
             }
 
-            square = splitStep * ((Form1.FuncValue(aBord, func) + Form1.FuncValue(bBord, func)) / 2 + sum);
+            square = splitStep * sum;
             return square;
         }
-
     }
 }

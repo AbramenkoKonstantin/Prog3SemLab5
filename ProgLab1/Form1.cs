@@ -23,6 +23,15 @@ namespace ProgLab1
         {
             try
             {
+
+                foreach (Control control in this.Controls)
+                {
+                    if (control is TextBox && !control.Enabled)
+                    {
+                        control.Text = "";
+                    }
+                }
+
                 GraphPane pane = zedGraph.GraphPane;
                 pane.CurveList.Clear();
                 double.TryParse(textBoxA.Text, out double aBord);
@@ -36,106 +45,28 @@ namespace ProgLab1
                 }
                 await Task.Run(() => LineDraw(aBord, bBord, esp, func));
 
-                int round = 0;
-                double espValue = esp;
-                while (espValue < 1)
+                int round = Round(esp);
+
+                if (checkBoxTrapezium.Checked)
                 {
-                    round += 1;
-                    espValue *= 10;
+                    int splits = TrapeziumMethod.OptimalSplits(aBord, bBord, esp, func);
+                    double square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
+                    trapeziumAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
                 }
 
-                int splits = trapeziumMethod.OptimalSplits(aBord, bBord, esp, func);
-                double square = trapeziumMethod.Calculation(aBord, bBord, splits, func);
+                if (checkBoxRectangle.Checked)
+                {
+                    int splits = RectangleMethod.OptimalSplits(aBord, bBord, esp, func);
+                    double square = RectangleMethod.Calculation(aBord, bBord, splits, func);
+                    rectangleAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                }
 
-                textBoxAnswer.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
-
-                /*Оптимальное количество разбиений методом прямоугольников*/
-                //double sAOS = 1;
-                //double sDAOS = 0;
-                //double amountOfSteps = 2;
-                //double doubleAmountOfSteps = 4;
-
-                //while (Math.Abs(sDAOS - sAOS) > esp)
-                //{
-                //    double h = (bBord - aBord) / amountOfSteps;
-                //    double hHalf = h / 2;
-                //    double x1 = aBord;
-                //    double x2 = aBord;
-                //    double sumAOS = 0;
-                //    double sumDAOS = 0;
-
-                //    for (int counter = 0; counter < amountOfSteps; ++counter)
-                //    {
-                //        sumAOS += FuncValue((2 * x1 + h) / 2, func);
-                //        x1 += h;
-                //    }
-
-                //    for (int counter = 0; counter < doubleAmountOfSteps; ++counter)
-                //    {
-                //        sumDAOS += FuncValue((2 * x2 + hHalf) / 2, func);
-                //        x2 += hHalf;
-                //    }
-                //    sAOS = h * sumAOS;
-                //    sDAOS = hHalf * sumDAOS;
-                //    amountOfSteps *= 2;
-                //    doubleAmountOfSteps *= 2;
-                //}
-                //textBoxAnswer.Text = Math.Round(sDAOS, round).ToString() + "; " + amountOfSteps.ToString();
-
-
-                /*Оптимальное количество разбиений методом Симпсона*/
-                //double sAOS = 1;
-                //double sDAOS = 0;
-                //double amountOfSteps = 2;
-                //double doubleAmountOfSteps = 4;
-
-                //while (Math.Abs(sDAOS - sAOS) > esp)
-                //{
-                //    double h = (bBord - aBord) / (amountOfSteps);
-                //    double hHalf = h / 2;
-                //    double x1 = aBord;
-                //    double x2 = aBord;
-                //    double sumEvenAOS = 0;
-                //    double sumEvenDAOS = 0;
-                //    double sumOddAOS = 0;
-                //    double sumOddDAOS = 0;
-
-                //    for (int counter = 1; counter < amountOfSteps; ++counter)
-                //    {
-                //        if (counter % 2 == 1)
-                //        {
-                //            x1 += h;
-                //            sumOddAOS += FuncValue(x1, func);
-                //        }
-
-                //        else
-                //        {
-                //            x1 += h;
-                //            sumEvenAOS += FuncValue(x1, func);
-                //        }
-                //    }
-
-                //    for (int counter = 1; counter < doubleAmountOfSteps; ++counter)
-                //    {
-                //        if (counter % 2 == 1)
-                //        {
-                //            x2 += hHalf;
-                //            sumOddDAOS += FuncValue(x2, func);
-                //        }
-
-                //        else
-                //        {
-                //            x2 += hHalf;
-                //            sumEvenDAOS += FuncValue(x2, func);
-                //        }
-                //    }
-                //    sAOS = (h / 3) * (FuncValue(aBord, func) + 4 * sumOddAOS + 2 * sumEvenAOS + FuncValue(bBord, func));
-                //    sDAOS = (hHalf / 3) * (FuncValue(aBord, func) + 4 * sumOddDAOS + 2 * sumEvenDAOS + FuncValue(bBord, func));
-                //    amountOfSteps *= 2;
-                //    doubleAmountOfSteps *= 2;
-                //}
-                //textBoxAnswer.Text = Math.Round(sDAOS, round).ToString() + "; " + amountOfSteps.ToString();
-
+                if (checkBoxSimpson.Checked)
+                {
+                    int splits = SimpsonMethod.OptimalSplits(aBord, bBord, esp, func);
+                    double square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
+                    simpsonAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                }
             }
 
             catch
@@ -157,6 +88,18 @@ namespace ProgLab1
                     MessageBox.Show("Некорректно задана вычисляемая функция");
                 }
             }
+        }
+
+        private int Round(double esp)
+        {
+            int round = 0;
+            double espValue = esp;
+            while (espValue < 1)
+            {
+                round += 1;
+                espValue *= 10;
+            }
+            return round;
         }
 
         private void LineDraw(double aBord, double bBord, double h, Expression func)
@@ -215,6 +158,97 @@ namespace ProgLab1
         private void exit_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void backBtn_Click(object sender, EventArgs e)
+        {
+            double.TryParse(textBoxA.Text, out double aBord);
+            double.TryParse(textBoxB.Text, out double bBord);
+            double.TryParse(textBoxE.Text, out double esp);
+            Expression func = Infix.ParseOrThrow(textBoxF.Text);
+            int round = Round(esp);
+
+
+            if (trapeziumAnswerBox.Text != "")
+            {
+                int splits = int.Parse(trapeziumAnswerBox.Text.Substring(trapeziumAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits / 2 > 0)
+                {
+                    splits /= 2;
+                    square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
+                    trapeziumAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                }
+            }
+
+            if (rectangleAnswerBox.Text != "")
+            {
+                int splits = int.Parse(rectangleAnswerBox.Text.Substring(rectangleAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits / 2 > 0)
+                {
+                    splits /= 2;
+                    square = RectangleMethod.Calculation(aBord, bBord, splits, func);
+                    rectangleAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                }
+            }
+
+            if (simpsonAnswerBox.Text != "")
+            {
+                int splits = int.Parse(simpsonAnswerBox.Text.Substring(simpsonAnswerBox.Text.IndexOf("; ") + 1));
+                double square;
+                if (splits / 2 > 0)
+                {
+                    splits /= 2;
+                    square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
+                    simpsonAnswerBox.Text = Math.Round(square, round).ToString() + "; " + splits.ToString();
+                }
+            }
+        }
+
+        private void forwardBtn_Click(object sender, EventArgs e)
+        {
+            double.TryParse(textBoxA.Text, out double aBord);
+            double.TryParse(textBoxB.Text, out double bBord);
+            double.TryParse(textBoxE.Text, out double esp);
+            Expression func = Infix.ParseOrThrow(textBoxF.Text);
+            int round = Round(esp);
+
+            if (trapeziumAnswerBox.Text != "")
+            {
+                int splitsTrapezium = int.Parse(trapeziumAnswerBox.Text.Substring(trapeziumAnswerBox.Text.IndexOf("; ") + 1));
+                double squareTrapezium;
+                if (splitsTrapezium * 2 < 100000)
+                {
+                    splitsTrapezium *= 2;
+                    squareTrapezium = TrapeziumMethod.Calculation(aBord, bBord, splitsTrapezium, func);
+                    trapeziumAnswerBox.Text = Math.Round(squareTrapezium, round).ToString() + "; " + splitsTrapezium.ToString();
+                }
+            }
+
+            if (rectangleAnswerBox.Text != "")
+            {
+                int splitsRectangle = int.Parse(rectangleAnswerBox.Text.Substring(rectangleAnswerBox.Text.IndexOf("; ") + 1));
+                double squareRectangle;
+                if (splitsRectangle * 2 < 100000)
+                {
+                    splitsRectangle *= 2;
+                    squareRectangle = RectangleMethod.Calculation(aBord, bBord, splitsRectangle, func);
+                    rectangleAnswerBox.Text = Math.Round(squareRectangle, round).ToString() + "; " + splitsRectangle.ToString();
+                }
+            }
+
+            if (simpsonAnswerBox.Text != "")
+            {
+                int splitsSimpson = int.Parse(simpsonAnswerBox.Text.Substring(simpsonAnswerBox.Text.IndexOf("; ") + 1));
+                double squareSimpson;
+                if (splitsSimpson * 2 < 100000)
+                {
+                    splitsSimpson *= 2;
+                    squareSimpson = SimpsonMethod.Calculation(aBord, bBord, splitsSimpson, func);
+                    simpsonAnswerBox.Text = Math.Round(squareSimpson, round).ToString() + "; " + splitsSimpson.ToString();
+                }
+            }
         }
     }
 }
