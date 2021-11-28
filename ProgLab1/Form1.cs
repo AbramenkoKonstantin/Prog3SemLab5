@@ -126,6 +126,10 @@ namespace ProgLab1
             myCurve.Symbol.Fill.Color = Color.Red;
             myCurve.Symbol.Fill.Type = FillType.Solid;
             myCurve.Symbol.Size = 5;
+            pane.XAxis.Scale.MinAuto = true;
+            pane.XAxis.Scale.MaxAuto = true;
+            pane.YAxis.Scale.MinAuto = true;
+            pane.YAxis.Scale.MaxAuto = true;
 
             graphTrapezium.AxisChange();
             graphTrapezium.Invalidate();
@@ -143,20 +147,23 @@ namespace ProgLab1
             double splitStep = (bBord - aBord) / splits;
             double x = aBord;
 
-            PointPairList list = new PointPairList();
+            double[] xValues = new double[splits];
+            double[] yValues = new double[splits];
 
-            for (int counter = 1; counter <= splits; ++counter)
+            for (int counter = 0; counter < splits - 1; ++counter)
             {
                 x += splitStep;
-                list.Add(x, FuncValue(x, func));
+                xValues[counter] = x + splitStep / 2;
+                yValues[counter] = FuncValue(x + splitStep, func);
             }
 
-            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
-            myCurve.Line.IsVisible = false;
-            myCurve.Symbol.Fill.Color = Color.Red;
-            myCurve.Symbol.Fill.Type = FillType.Solid;
-            myCurve.Symbol.Size = 5;
+            pane.AddBar("Гис", xValues, yValues, Color.White);
 
+            pane.BarSettings.MinClusterGap = 0.0f;
+            pane.XAxis.Scale.MinAuto = true;
+            pane.XAxis.Scale.MaxAuto = true;
+            pane.YAxis.Scale.MinAuto = true;
+            pane.YAxis.Scale.MaxAuto = true;
             graphRectangle.AxisChange();
             graphRectangle.Invalidate();
         }
@@ -186,6 +193,10 @@ namespace ProgLab1
             myCurve.Symbol.Fill.Color = Color.Red;
             myCurve.Symbol.Fill.Type = FillType.Solid;
             myCurve.Symbol.Size = 5;
+            pane.XAxis.Scale.MinAuto = true;
+            pane.XAxis.Scale.MaxAuto = true;
+            pane.YAxis.Scale.MinAuto = true;
+            pane.YAxis.Scale.MaxAuto = true;
 
             graphSimpson.AxisChange();
             graphSimpson.Invalidate();
@@ -194,18 +205,73 @@ namespace ProgLab1
 
         private void LineDraw(double aBord, double bBord, double esp, Expression func)
         {
-
+            PointPairList list = new PointPairList();
             GraphPane trapeziumMethod = graphTrapezium.GraphPane;
             GraphPane rectangleMethod = graphRectangle.GraphPane;
             GraphPane simpsonMethod = graphSimpson.GraphPane;
 
-            trapeziumMethod.CurveList.Clear();
-            rectangleMethod.CurveList.Clear();
-            simpsonMethod.CurveList.Clear();
+            if (checkBoxTrapezium.Checked)
+            {
+                trapeziumMethod.CurveList.Clear();
+                trapeziumMethod.Title.Text = "Trapezium Method";
+                trapeziumMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                graphTrapezium.AxisChange();
+                graphTrapezium.Invalidate();
+                trapeziumMethod.XAxis.Scale.MinAuto = true;
+                trapeziumMethod.XAxis.Scale.MaxAuto = true;
+                trapeziumMethod.YAxis.Scale.MinAuto = true;
+                trapeziumMethod.YAxis.Scale.MaxAuto = true;
+            }
 
-            trapeziumMethod.Title.Text = "Trapezium Method";
-            rectangleMethod.Title.Text = "Rectangle Method";
-            simpsonMethod.Title.Text = "Simpson Method";
+            else
+            {
+                trapeziumMethod.CurveList.Clear();
+                graphTrapezium.AxisChange();
+                graphTrapezium.Invalidate();
+            }
+
+
+            if (checkBoxRectangle.Checked)
+            {
+                rectangleMethod.CurveList.Clear();
+                rectangleMethod.Title.Text = "Trapezium Method";
+                rectangleMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                graphRectangle.AxisChange();
+                graphRectangle.Invalidate();
+                rectangleMethod.XAxis.Scale.MinAuto = true;
+                rectangleMethod.XAxis.Scale.MaxAuto = true;
+                rectangleMethod.YAxis.Scale.MinAuto = true;
+                rectangleMethod.YAxis.Scale.MaxAuto = true;
+            }
+
+            else
+            {
+                rectangleMethod.CurveList.Clear();
+                graphRectangle.AxisChange();
+                graphRectangle.Invalidate();
+            }
+
+
+            if (checkBoxSimpson.Checked)
+            {
+                
+                simpsonMethod.CurveList.Clear();
+                simpsonMethod.Title.Text = "Trapezium Method";
+                simpsonMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                graphSimpson.AxisChange();
+                graphSimpson.Invalidate();
+                simpsonMethod.XAxis.Scale.MinAuto = true;
+                simpsonMethod.XAxis.Scale.MaxAuto = true;
+                simpsonMethod.YAxis.Scale.MinAuto = true;
+                simpsonMethod.YAxis.Scale.MaxAuto = true;
+            }
+
+            else
+            {
+                simpsonMethod.CurveList.Clear();
+                graphSimpson.AxisChange();
+                graphSimpson.Invalidate();
+            }
 
             double espValue = esp;
             int counter = 0;
@@ -220,25 +286,11 @@ namespace ProgLab1
                 esp = (bBord - aBord) / 50000;
             }
 
-            PointPairList list = new PointPairList();
-
             for (double x = aBord; x <= bBord; x += esp)
             {
                 double funcValue = Math.Round(FuncValue(x, func), counter);
                 list.Add(x, funcValue);
             }
-
-            trapeziumMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
-            graphTrapezium.AxisChange();
-            graphTrapezium.Invalidate();
-
-            rectangleMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
-            graphRectangle.AxisChange();
-            graphRectangle.Invalidate();
-
-            simpsonMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
-            graphSimpson.AxisChange();
-            graphSimpson.Invalidate();
         }
         static public double FuncValue(double point, Expression func)
         {
@@ -280,7 +332,7 @@ namespace ProgLab1
             {
                 int splits = int.Parse(trapeziumAnswerBox.Text.Substring(trapeziumAnswerBox.Text.IndexOf("; ") + 1));
                 double square;
-                if (splits / 2 > 0)
+                if (splits / 2 > 3)
                 {
                     splits /= 2;
                     square = TrapeziumMethod.Calculation(aBord, bBord, splits, func);
@@ -293,7 +345,7 @@ namespace ProgLab1
             {
                 int splits = int.Parse(rectangleAnswerBox.Text.Substring(rectangleAnswerBox.Text.IndexOf("; ") + 1));
                 double square;
-                if (splits / 2 > 0)
+                if (splits / 2 > 3)
                 {
                     splits /= 2;
                     square = RectangleMethod.Calculation(aBord, bBord, splits, func);
@@ -306,7 +358,7 @@ namespace ProgLab1
             {
                 int splits = int.Parse(simpsonAnswerBox.Text.Substring(simpsonAnswerBox.Text.IndexOf("; ") + 1));
                 double square;
-                if (splits / 2 > 0)
+                if (splits / 2 > 3)
                 {
                     splits /= 2;
                     square = SimpsonMethod.Calculation(aBord, bBord, splits, func);
