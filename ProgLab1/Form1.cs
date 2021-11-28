@@ -113,19 +113,19 @@ namespace ProgLab1
             double splitStep = (bBord - aBord) / splits;
             double x = aBord;
 
-            PointPairList list = new PointPairList();
+            PointPairList trapeziumList = new PointPairList();
 
-            for (int counter = 1; counter <= splits; ++counter)
+            for (int counter = 0; counter < splits - 1; ++counter)
             {
                 x += splitStep;
-                list.Add(x, FuncValue(x, func));
+                trapeziumList.Add(x, 0);
+                trapeziumList.Add(x, FuncValue(x, func));
+                trapeziumList.Add(x + splitStep, FuncValue(x + splitStep, func));
+                trapeziumList.Add(x + splitStep, 0);
+                graphTrapezium.AxisChange();
+                graphTrapezium.Invalidate();
             }
-
-            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
-            myCurve.Line.IsVisible = false;
-            myCurve.Symbol.Fill.Color = Color.Red;
-            myCurve.Symbol.Fill.Type = FillType.Solid;
-            myCurve.Symbol.Size = 5;
+            pane.AddCurve("", trapeziumList, Color.Red, SymbolType.None);
             pane.XAxis.Scale.MinAuto = true;
             pane.XAxis.Scale.MaxAuto = true;
             pane.YAxis.Scale.MinAuto = true;
@@ -157,7 +157,7 @@ namespace ProgLab1
                 yValues[counter] = FuncValue(x + splitStep, func);
             }
 
-            pane.AddBar("Гис", xValues, yValues, Color.White);
+            pane.AddBar("", xValues, yValues, Color.White);
 
             pane.BarSettings.MinClusterGap = 0.0f;
             pane.XAxis.Scale.MinAuto = true;
@@ -188,7 +188,7 @@ namespace ProgLab1
                 list.Add(x, FuncValue(x, func));
             }
 
-            LineItem myCurve = pane.AddCurve("Sinc1", list, Color.Red);
+            LineItem myCurve = pane.AddCurve("", list, Color.Red);
             myCurve.Line.IsVisible = false;
             myCurve.Symbol.Fill.Color = Color.Red;
             myCurve.Symbol.Fill.Type = FillType.Solid;
@@ -214,7 +214,7 @@ namespace ProgLab1
             {
                 trapeziumMethod.CurveList.Clear();
                 trapeziumMethod.Title.Text = "Trapezium Method";
-                trapeziumMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                trapeziumMethod.AddCurve("", list, Color.Blue, SymbolType.None);
                 graphTrapezium.AxisChange();
                 graphTrapezium.Invalidate();
                 trapeziumMethod.XAxis.Scale.MinAuto = true;
@@ -235,7 +235,7 @@ namespace ProgLab1
             {
                 rectangleMethod.CurveList.Clear();
                 rectangleMethod.Title.Text = "Trapezium Method";
-                rectangleMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                rectangleMethod.AddCurve("", list, Color.Blue, SymbolType.None);
                 graphRectangle.AxisChange();
                 graphRectangle.Invalidate();
                 rectangleMethod.XAxis.Scale.MinAuto = true;
@@ -257,7 +257,7 @@ namespace ProgLab1
                 
                 simpsonMethod.CurveList.Clear();
                 simpsonMethod.Title.Text = "Trapezium Method";
-                simpsonMethod.AddCurve("Graph", list, Color.Blue, SymbolType.None);
+                simpsonMethod.AddCurve("", list, Color.Blue, SymbolType.None);
                 graphSimpson.AxisChange();
                 graphSimpson.Invalidate();
                 simpsonMethod.XAxis.Scale.MinAuto = true;
