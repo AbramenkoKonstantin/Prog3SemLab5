@@ -11,7 +11,7 @@ namespace ProgLab1
         {
             double smallerSquare = 1;
             double largerSquare = 0;
-            int splits = 4;
+            int splits = 2;
 
             while (Math.Abs(largerSquare - smallerSquare) > esp)
             {
